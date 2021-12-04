@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">StaticLogin</string>
+
+
+    <!-- hints  -->
+    <string name="hintUsername">Username</string>
+    <string name="hintPassword">Password</string>
+
+    <!--  button text  -->
+    <string name="textLogin">Login</string>
+    <!--  Label  -->
+    <string name="labelLogin">Login</string>
+    <string name="successLogin">Logged in successfully!</string>
+    <string name="successLoginMessage">Welcome to Mobile Programming!</string>
+    <string name="successWelcomeIconAlt">Welcome bubble</string>
+</resources>

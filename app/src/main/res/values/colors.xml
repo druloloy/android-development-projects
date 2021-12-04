@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="maxBlue_50">#8053B3CB</color>
+    <color name="maxBlue_100">#53B3CB</color>
+
+    <color name="orangeYellow_50">#80F9C22E</color>
+    <color name="orangeYellow_100">#F9C22E</color>
+
+    <color name="fireOpal_50">#80F15946</color>
+    <color name="fireOpal_100">#F15946</color>
+
+    <color name="uaRed_50">#80E01A4F</color>
+    <color name="uaRed_100">#E01A4F</color>
+
+    <color name="richBlack_50">#800C090D</color>
+    <color name="richBlack_100">#0C090D</color>
+
+    <color name="white">#fff</color>
+</resources>
