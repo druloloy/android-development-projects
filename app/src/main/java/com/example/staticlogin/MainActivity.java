@@ -1,9 +1,8 @@
 package com.example.staticlogin;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationBuilderWithBuilderAccessor;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import android.app.Notification;
@@ -13,25 +12,19 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.zip.Inflater;
 
+// CUSTOM LOCAL DATABASE
+// APPLIED ENCAPSULATION
 class AccountStorage{
+    // USER OBJECT THAT CONTAINS USERNAME AND PASSWORD AND A COMPARE PASSWORD METHOD FOR VALIDATION
     static class User{
         private String username;
         private String password;
@@ -39,25 +32,16 @@ class AccountStorage{
         public void setUsername(String username){
             this.username = username;
         }
-
         public void setPassword(String password) {
             this.password = password;
         }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public boolean comparePassword(String password){
+        public boolean comparePassword(@NonNull String password){
             if(password.isEmpty()) return false;
             return this.password.equals(password);
         }
     }
-    private static ArrayList<User> LocalStorage = new ArrayList<>();
+    // OUR ARRAY HOLDER
+    private final static ArrayList<User> LocalStorage = new ArrayList<>();
 
     public void addUser(String username, String password){
         User user = new User();
@@ -79,14 +63,17 @@ class AccountStorage{
 public class MainActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "StaticLogin_Notification_Welcome";
-    HashMap<String, String> accountStorage;
 
+    // DECLAARE VIEWS
     Button loginBtn;
     EditText usernameET;
     EditText passwordET;
+
+    // DEFAULT TOAST
     public void displayToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
+
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -106,45 +93,48 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         createNotificationChannel();
 
+        // OUR LOCAL DATABASE
         AccountStorage accountStorage = new AccountStorage();
         accountStorage.addUser("johndoe", "12345678");
 
-//      INITIALIZE VIEWS
+        // INITIALIZE VIEWS
         loginBtn = findViewById(R.id.login);
         usernameET = findViewById(R.id.username);
         passwordET = findViewById(R.id.password);
 
-//       ON CLICK FUNCTION
+        // ON CLICK FUNCTION, THIS WILL ONLY FIRE IF THE LOGIN BUTTON WAS CLICKED
         loginBtn.setOnClickListener(view -> {
             String username = usernameET.getText().toString(),
                     password = passwordET.getText().toString();
 
-//              IF USERNAME AND THE PASSWORD DOESN'T EXIST IN OUT EDITTEXTS
-            if(username.isEmpty()){
-                displayToast("Username is required!");
-            }
-            if(password.isEmpty()){
-                displayToast("Password is required!");
-            }
-//              IF THE TWO EXISTS EXISTS
+        // IF USERNAME AND THE PASSWORD DOESN'T EXIST IN OUR EDITTEXTS
+            if(username.isEmpty()) displayToast("Username is required!");
+            else if(password.isEmpty()) displayToast("Password is required!");
+            else {
+                // IF THE TWO EXISTS EXISTS
+                // WE USED TRY-CATCH HERE TO HANDLE NULL IF THE USER ISN'T FOUND IN OUR LOCAL DATABASE
+                try {
 
-            try {
-                AccountStorage.User user = accountStorage.findUser(username);
+                    // FIND USER WITH THE SAME USERNAME
+                    AccountStorage.User user = accountStorage.findUser(username);
 
-                if(user.comparePassword(password)){
-                    welcome();
-                    notifyLogin();
-                    Intent homeIntent = new Intent(getApplicationContext(), Home.class);
-                    startActivity(homeIntent);
-                    finish();
+                    // IF FOUND
+                    if (user.comparePassword(password)) {
+                        welcome(); // DISPLAY CUSTOM TOAST
+                        notifyLogin(); // DISPLAY NOTIFICATION
+                        Intent homeIntent = new Intent(getApplicationContext(), Home.class);
+                        startActivity(homeIntent); // REDIRECT TO HOME
+                        finish(); // CLOSE THE CURRENT ACTIVITY (LOGIN)
+                    }
+                    // IF NOT FOUND AN ERROR WILL BE CAUGHT AND WILL DISPLAY OUR TOAST
+                } catch (NullPointerException npe) {
+                    displayToast("Username or Password is incorrect.");
                 }
-            }catch (NullPointerException npe){
-                displayToast("Username or Password is incorrect.");
             }
-
         });
     }
 
+    // DISPLAY CUSTOM WELCOME TOAST
     public void welcome(){
         LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.welcome_toast, null);
@@ -155,7 +145,8 @@ public class MainActivity extends AppCompatActivity {
         toast.setView(layout);
         toast.show();
     }
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
+    // OUR NOTIFICATION WHEN LOGGED IN
     public void notifyLogin(){
         Intent intent = new Intent(this, Home.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -173,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         notificationManagerComp.notify(NOTIFICATION_ID, notificationBuilder.build());
 
     }
+    // ID GENERATOR FOR NOTIFICATION
     public int generateNotificationID(){
         return (int) Math.floor(Math.random() * 9999);
     }
